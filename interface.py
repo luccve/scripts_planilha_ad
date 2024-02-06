@@ -36,11 +36,16 @@ class InterfaceTkinter:
         self.frame = tk.Frame(self.root)
         self.frame.pack(pady=30)
 
-        self.label = tk.Label(self.frame, text="Selecione o arquivo:")
-        self.label.pack(side="left")
+        style = ttk.Style()
+        style.configure("Botao.TButton", foreground="green", background="white", font=("Arial", 12, "bold"))
+        
+
+        self.label = tk.Label(self.frame, textvariable=self.path_file, font=("Arial", 8))
+        self.label.pack()
+
 
         self.botao_selecionar = tk.Button(self.frame, text="Selecionar Arquivo", command=self.selecionar_arquivo)
-        self.botao_selecionar.pack(side="left")
+        self.botao_selecionar.pack()
 
         self.label2 = tk.Label(self.root, text="Selecione o target:")
         self.label2.pack()
@@ -48,8 +53,7 @@ class InterfaceTkinter:
         self.target_combobox = ttk.Combobox(self.root, textvariable=self.target)
         self.target_combobox.pack()
 
-        style = ttk.Style()
-        style.configure("Botao.TButton", foreground="green", background="white", font=("Arial", 12, "bold"))
+    
 
         self.label3 = tk.Label(self.root, text="Valor da Escala:")
         self.label3.pack(anchor="center")
@@ -69,7 +73,12 @@ class InterfaceTkinter:
         self.path_file.set(caminho_arquivo)
         if caminho_arquivo:
             messagebox.showinfo('Aviso', 'Selecione o valor de índice que irá ser usado para o join')
-            name_file = os.path.basename(caminho_arquivo).split('.')[0]
+            name_file = os.path.basename(caminho_arquivo).split('.')
+            print(name_file)
+            if(len(name_file)==2):
+                name_file = name_file[0].strip()
+            else:
+                name_file = (name_file[0]+'_'+name_file[1]).strip()
             self.name_file_out.set(name_file)
             processador = ProcessadorArquivo(caminho_arquivo)
             processador.ler_arquivo()
