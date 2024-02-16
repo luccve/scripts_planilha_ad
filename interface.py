@@ -7,10 +7,12 @@ from format_file import ProcessadorArquivo
 import os
 
 class InterfaceTkinter:
+
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Selecione o arquivo")
 
+        messagebox.showinfo('Tutorial', 'Selecione o arquivo no padrao de cabeçalhos confira a planilha modelo.\n O valor de escala padrão é 250.000')
         # Centralizando a janela na tela
         self.root.eval('tk::PlaceWindow . center')
 
@@ -53,23 +55,25 @@ class InterfaceTkinter:
         self.target_combobox = ttk.Combobox(self.root, textvariable=self.target)
         self.target_combobox.pack()
 
-    
-
         self.label3 = tk.Label(self.root, text="Valor da Escala:")
         self.label3.pack(anchor="center")
 
-        self.entry_scale = tk.Entry(self.root, textvariable=self.escala)
-        self.entry_scale.pack(anchor="center")
+        self.target_combobox2 = ttk.Combobox(self.root, textvariable=self.escala)
+        self.target_combobox2['values']=['5.000','10.000', '15.000','25.000', '30.000', '50.000', '75.000', '100.000', '150.000', '200.000', '250.000', '500.000', '1.000.000' ]
+        self.target_combobox2.pack()
+
 
         self.botao_executar = ttk.Button(self.root, text="Executar", command=self.executar_processadomento, style="Botao.TButton")
         self.botao_executar.pack()
 
-       
+        self.texto = tk.Label(self.root, text="Estevão Lucas\nhurryblank@gmail.com\nversion 1.0.0")
+        self.texto.pack()
+
 
         self.root.mainloop()
 
     def selecionar_arquivo(self):
-        caminho_arquivo = filedialog.askopenfilename(filetypes=[("Arquivos XLSX", "*.xlsx"),("Arquivos XLS", "*.xls"), ("Arquivos CSV", "*.csv")])
+        caminho_arquivo = filedialog.askopenfilename(initialdir='./', filetypes=[("Arquivos XLSX", "*.xlsx"),("Arquivos XLS", "*.xls"), ("Arquivos CSV", "*.csv")])
         self.path_file.set(caminho_arquivo)
         if caminho_arquivo:
             messagebox.showinfo('Aviso', 'Selecione o valor de índice que irá ser usado para o join')
@@ -80,11 +84,16 @@ class InterfaceTkinter:
             else:
                 name_file = (name_file[0]+'_'+name_file[1]).strip()
             self.name_file_out.set(name_file)
-            processador = ProcessadorArquivo(caminho_arquivo)
+
+            def update_combobox(targets):
+                self.target_combobox['values'] = targets
+            # Instancia a classe ProcessadorArquivo com o callback
+            processador = ProcessadorArquivo(caminho_arquivo, callback=update_combobox)
             processador.ler_arquivo()
-            self.target_combobox['values'] = processador.targets
+
         else:   
             messagebox.showerror('Error', 'Selecione um arquivo válido')
+
     def executar_processadomento(self):
         self.processar_arquivo(self.path_file.get())
 
@@ -95,8 +104,8 @@ class InterfaceTkinter:
             self.target_combobox['values'] = processador.targets
             processador.target = self.target.get()
             processador.processar_dataframe(self.escala.get())
-            processador.exportar_dataframe(f'{self.name_file_out.get()}_novo.csv')
-            messagebox.showinfo('Concluído', 'Arquivo foi salvo')
+            msg =processador.exportar_dataframe(f'{self.name_file_out.get()}_novo.csv')
+            messagebox.showinfo('Concluído', msg)
         except Exception as e:
             self.generate_message('Error', e)
 
